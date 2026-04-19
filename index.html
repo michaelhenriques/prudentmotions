@@ -561,24 +561,28 @@
     const hero         = document.getElementById('hero');
     const progressLine = document.getElementById('progressLine');
 
-    let navVisible   = false;
-    let rafId        = null;
-    let lastProgress = -1;
+    let navVisible  = false;
+    let targetTime  = 0;
+    let displayTime = 0;
+    const LERP      = 0.12; // smoothing — lower = silkier but slower to catch up
 
     function getProgress() {
       const heroHeight = hero.offsetHeight - window.innerHeight;
       return Math.min(Math.max(window.scrollY / heroHeight, 0), 1);
     }
 
-    function update() {
-      const progress = getProgress();
+    function loop() {
+      if (video.readyState >= 1 && video.duration) {
+        // Lerp display time toward target
+        displayTime += (targetTime - displayTime) * LERP;
 
-      if (Math.abs(progress - lastProgress) > 0.0005) {
-        if (video.readyState >= 1 && video.duration) {
-          video.currentTime = progress * video.duration;
+        // Only seek if meaningfully different to avoid thrashing
+        if (Math.abs(displayTime - video.currentTime) > 0.01) {
+          video.currentTime = displayTime;
         }
-        lastProgress = progress;
       }
+
+      const progress = getProgress();
 
       progressLine.style.width = (progress * 100) + '%';
       progressLine.classList.toggle('visible', progress > 0.01 && progress < 0.99);
@@ -591,19 +595,18 @@
         nav.classList.remove('visible');
       }
 
-      rafId = null;
+      requestAnimationFrame(loop);
     }
 
     function onScroll() {
-      if (!rafId) rafId = requestAnimationFrame(update);
+      const progress = getProgress();
+      if (video.duration) targetTime = progress * video.duration;
     }
 
     video.addEventListener('loadedmetadata', () => {
       window.addEventListener('scroll', onScroll, { passive: true });
-      update();
+      loop();
     });
-
-    window.addEventListener('scroll', onScroll, { passive: true });
 
     function handleSubmit(e) {
       e.preventDefault();
