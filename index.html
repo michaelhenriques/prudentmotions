@@ -182,19 +182,6 @@
       pointer-events: none;
     }
 
-    /* ── Cover baked-in video icon ── */
-    .video-cover {
-      position: absolute;
-      bottom: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 200px;
-      height: 120px;
-      background: radial-gradient(ellipse at bottom center, rgba(0,0,0,0.85) 0%, transparent 100%);
-      pointer-events: none;
-      z-index: 5;
-    }
-
     /* ── Scroll indicator ── */
     .scroll-indicator {
       position: absolute;
@@ -572,12 +559,11 @@
       <video
         id="heroVideo"
         class="hero-video"
-        src="https://pub-1ae88d462f9e4b7ebecc1a3b91c93d57.r2.dev/carvideo_web2.mp4"
+        src="https://pub-1ae88d462f9e4b7ebecc1a3b91c93d57.r2.dev/carvideo_cropped2.mp4"
         muted
         playsinline
         preload="auto"
       ></video>
-      <div class="video-cover"></div>
       <div class="scroll-indicator" id="scrollIndicator">
         <div class="scroll-mouse"></div>
         <div class="scroll-arrows">
