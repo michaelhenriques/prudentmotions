@@ -52,13 +52,15 @@
       height: 100%;
       object-fit: cover;
       display: block;
+      will-change: transform;
+      transform: translateZ(0);
     }
 
     .video-sticky::after {
       content: '';
       position: absolute;
       inset: 0;
-      background: radial-gradient(ellipse at center, transparent 45%, rgba(6,4,14,0.65) 100%);
+      background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.55) 100%);
       pointer-events: none;
     }
 
@@ -1107,6 +1109,11 @@
     let navVisible   = false;
     let rafId        = null;
     let lastProgress = -1;
+    let seeking      = false;
+
+    // Prevent the browser from trying to play — we only scrub manually
+    video.pause();
+    video.addEventListener('play', () => video.pause());
 
     function getProgress() {
       const scrollTop  = window.scrollY;
@@ -1117,11 +1124,13 @@
     function update() {
       const progress = getProgress();
 
-      if (Math.abs(progress - lastProgress) > 0.0005) {
-        if (video.readyState >= 1 && video.duration) {
+      // Only seek if the change is meaningful and a previous seek isn't pending
+      if (!seeking && Math.abs(progress - lastProgress) > 0.002) {
+        if (video.readyState >= 2 && video.duration) {
+          seeking = true;
           video.currentTime = progress * video.duration;
+          lastProgress = progress;
         }
-        lastProgress = progress;
       }
 
       progressLine.style.width = (progress * 100) + '%';
@@ -1143,11 +1152,15 @@
       rafId = null;
     }
 
+    // Release the seeking lock once the frame is decoded
+    video.addEventListener('seeked', () => { seeking = false; });
+
     function onScroll() {
       if (!rafId) rafId = requestAnimationFrame(update);
     }
 
-    video.addEventListener('loadedmetadata', () => {
+    video.addEventListener('loadeddata', () => {
+      video.pause();
       window.addEventListener('scroll', onScroll, { passive: true });
       update();
     });
