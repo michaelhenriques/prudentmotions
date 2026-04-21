@@ -178,6 +178,154 @@
     nav.visible .nav-links li:nth-child(4) { opacity: 1; transform: translateY(0); transition-delay: 0.44s; }
 
     /* ══════════════════════════════════════
+       WRAP SHOWCASE
+    ══════════════════════════════════════ */
+    .section-wrap {
+      position: relative;
+      height: 600vh;
+      background: #06040e;
+    }
+
+    .wrap-sticky {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      width: 100%;
+      overflow: hidden;
+      will-change: transform;
+    }
+
+    .wrap-video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      will-change: transform;
+      transform: translateZ(0);
+    }
+
+    /* cinematic top+bottom vignette */
+    .wrap-sticky::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(to bottom, rgba(6,4,14,0.6) 0%, transparent 25%),
+        linear-gradient(to top,    rgba(6,4,14,0.75) 0%, transparent 35%);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* ── Stage text overlays ── */
+    .wrap-stage {
+      position: absolute;
+      bottom: 80px;
+      left: 60px;
+      z-index: 2;
+      opacity: 0;
+      transform: translateY(18px);
+      transition: opacity 0.55s cubic-bezier(0.22,1,0.36,1), transform 0.55s cubic-bezier(0.22,1,0.36,1);
+      pointer-events: none;
+      max-width: 460px;
+    }
+
+    .wrap-stage.right {
+      left: auto;
+      right: 60px;
+      text-align: right;
+    }
+
+    .wrap-stage.active {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .wrap-stage-line {
+      width: 32px;
+      height: 1px;
+      background: var(--purple);
+      margin-bottom: 14px;
+      transition: width 0.7s cubic-bezier(0.22,1,0.36,1);
+    }
+
+    .wrap-stage.right .wrap-stage-line {
+      margin-left: auto;
+    }
+
+    .wrap-stage.active .wrap-stage-line { width: 56px; }
+
+    .wrap-stage-label {
+      font-family: 'Raleway', sans-serif;
+      font-size: 0.6rem;
+      font-weight: 300;
+      letter-spacing: 0.5em;
+      text-transform: uppercase;
+      color: var(--purple-light);
+      margin-bottom: 10px;
+    }
+
+    .wrap-stage-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(1.8rem, 2.8vw, 2.6rem);
+      font-weight: 300;
+      color: var(--white);
+      line-height: 1.1;
+      margin-bottom: 12px;
+      letter-spacing: -0.01em;
+    }
+
+    .wrap-stage-desc {
+      font-family: 'Raleway', sans-serif;
+      font-size: 0.73rem;
+      font-weight: 300;
+      letter-spacing: 0.09em;
+      line-height: 2;
+      color: rgba(196,168,245,0.58);
+    }
+
+    /* stage counter top-right */
+    .wrap-counter {
+      position: absolute;
+      top: 40px;
+      right: 60px;
+      z-index: 2;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 0.75rem;
+      font-weight: 300;
+      letter-spacing: 0.3em;
+      color: rgba(155,114,224,0.45);
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+
+    .wrap-counter.active { opacity: 1; }
+
+    /* progress dots right side */
+    .wrap-dots {
+      position: absolute;
+      right: 30px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 2;
+    }
+
+    .wrap-dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: rgba(155,114,224,0.25);
+      transition: background 0.4s ease, transform 0.4s ease;
+    }
+
+    .wrap-dot.active {
+      background: var(--purple-light);
+      transform: scale(1.6);
+    }
+
+    /* ══════════════════════════════════════
        SHARED
     ══════════════════════════════════════ */
     .section-label {
@@ -868,6 +1016,75 @@
 
 
   <!-- ══════════════════════════════════════
+       WRAP SHOWCASE
+  ══════════════════════════════════════ -->
+  <section class="section-wrap" id="wrap-showcase">
+    <div class="wrap-sticky" id="wrapSticky">
+      <video
+        id="wrapVideo"
+        class="wrap-video"
+        src="wrapvideo.mp4"
+        muted
+        playsinline
+        preload="auto"
+      ></video>
+
+      <!-- Stage 1 — Surface Prep -->
+      <div class="wrap-stage" id="ws1">
+        <div class="wrap-stage-line"></div>
+        <div class="wrap-stage-label">Step 01 — Surface Prep</div>
+        <h3 class="wrap-stage-title">Clean Canvas.<br>Zero Compromise.</h3>
+        <p class="wrap-stage-desc">Deep clean, decontamination, and surface inspection before a single millimetre of vinyl is touched.</p>
+      </div>
+
+      <!-- Stage 2 — Vinyl Application -->
+      <div class="wrap-stage" id="ws2">
+        <div class="wrap-stage-line"></div>
+        <div class="wrap-stage-label">Step 02 — Vinyl Lay</div>
+        <h3 class="wrap-stage-title">Positioned.<br>Not Guessed.</h3>
+        <p class="wrap-stage-desc">3M Series 1080 Deep Violet cast film — carefully aligned to the panel before any adhesive contact.</p>
+      </div>
+
+      <!-- Stage 3 — Squeegee -->
+      <div class="wrap-stage right" id="ws3">
+        <div class="wrap-stage-line"></div>
+        <div class="wrap-stage-label">Step 03 — Application</div>
+        <h3 class="wrap-stage-title">Air-Free.<br>Every Time.</h3>
+        <p class="wrap-stage-desc">Every squeegee stroke is deliberate. Every bubble eliminated before it sets.</p>
+      </div>
+
+      <!-- Stage 4 — Heat Gun -->
+      <div class="wrap-stage right" id="ws4">
+        <div class="wrap-stage-line"></div>
+        <div class="wrap-stage-label">Step 04 — Heat Seal</div>
+        <h3 class="wrap-stage-title">Locked<br>to Every Curve.</h3>
+        <p class="wrap-stage-desc">Precision heat contouring seals the film to edges, recesses, and compound curves — permanent and flush.</p>
+      </div>
+
+      <!-- Stage 5 — Reveal -->
+      <div class="wrap-stage" id="ws5">
+        <div class="wrap-stage-line"></div>
+        <div class="wrap-stage-label">Prudent Motions — Dallas, TX</div>
+        <h3 class="wrap-stage-title">The Result<br>Speaks.</h3>
+        <p class="wrap-stage-desc">From white to deep violet. The full transformation, exactly as envisioned.</p>
+      </div>
+
+      <!-- Counter -->
+      <div class="wrap-counter" id="wrapCounter">01 / 05</div>
+
+      <!-- Progress dots -->
+      <div class="wrap-dots" id="wrapDots">
+        <div class="wrap-dot active" data-dot="0"></div>
+        <div class="wrap-dot" data-dot="1"></div>
+        <div class="wrap-dot" data-dot="2"></div>
+        <div class="wrap-dot" data-dot="3"></div>
+        <div class="wrap-dot" data-dot="4"></div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════
        SERVICES
   ══════════════════════════════════════ -->
   <section class="section-services" id="services">
@@ -1166,6 +1383,104 @@
     });
 
     window.addEventListener('scroll', onScroll, { passive: true });
+
+    /* ── Wrap showcase scroll ── */
+    const wrapVideo   = document.getElementById('wrapVideo');
+    const wrapSticky  = document.getElementById('wrapSticky');
+    const wrapSection = document.getElementById('wrap-showcase');
+    const wrapCounter = document.getElementById('wrapCounter');
+    const wrapDots    = document.querySelectorAll('.wrap-dot');
+    const wrapStages  = [
+      document.getElementById('ws1'),
+      document.getElementById('ws2'),
+      document.getElementById('ws3'),
+      document.getElementById('ws4'),
+      document.getElementById('ws5'),
+    ];
+
+    // Stage thresholds — videoProgress 0..1 at which each stage is active
+    const stageBounds = [
+      [0.00, 0.22],
+      [0.22, 0.42],
+      [0.42, 0.62],
+      [0.62, 0.82],
+      [0.82, 1.00],
+    ];
+    const counterLabels = ['01 / 05','02 / 05','03 / 05','04 / 05','05 / 05'];
+
+    let wrapSeeking = false;
+    let lastWrapProgress = -1;
+
+    wrapVideo.pause();
+    wrapVideo.addEventListener('play', () => wrapVideo.pause());
+    wrapVideo.addEventListener('seeked', () => { wrapSeeking = false; });
+
+    function getWrapProgress() {
+      const rect       = wrapSection.getBoundingClientRect();
+      const totalScroll = wrapSection.offsetHeight - window.innerHeight;
+      const scrolled   = -rect.top;
+      return Math.min(Math.max(scrolled / totalScroll, 0), 1);
+    }
+
+    function updateWrap() {
+      const p = getWrapProgress();
+
+      // Slide-up entrance: first 15% of section scroll
+      const SLIDE_ZONE = 0.15;
+      if (p < SLIDE_ZONE) {
+        const slideP = p / SLIDE_ZONE; // 0→1
+        const translateY = (1 - slideP) * 100;
+        wrapSticky.style.transform = `translateY(${translateY}vh)`;
+        // hide all stages during slide-in
+        wrapStages.forEach(s => s.classList.remove('active'));
+        wrapCounter.classList.remove('active');
+        return;
+      }
+
+      wrapSticky.style.transform = 'translateY(0)';
+
+      // Video scrubbing over remaining 85%
+      const videoP = (p - SLIDE_ZONE) / (1 - SLIDE_ZONE);
+
+      if (!wrapSeeking && Math.abs(videoP - lastWrapProgress) > 0.002) {
+        if (wrapVideo.readyState >= 2 && wrapVideo.duration) {
+          wrapSeeking = true;
+          wrapVideo.currentTime = videoP * wrapVideo.duration;
+          lastWrapProgress = videoP;
+        }
+      }
+
+      // Activate the correct stage
+      let activeIdx = -1;
+      stageBounds.forEach(([from, to], i) => {
+        if (videoP >= from && videoP < to) activeIdx = i;
+      });
+      // clamp last stage at end
+      if (videoP >= 0.82) activeIdx = 4;
+
+      wrapStages.forEach((s, i) => {
+        s.classList.toggle('active', i === activeIdx);
+      });
+      wrapDots.forEach((d, i) => {
+        d.classList.toggle('active', i === activeIdx);
+      });
+
+      if (activeIdx >= 0) {
+        wrapCounter.textContent = counterLabels[activeIdx];
+        wrapCounter.classList.add('active');
+      }
+    }
+
+    wrapVideo.addEventListener('loadeddata', () => {
+      wrapVideo.pause();
+    });
+
+    window.addEventListener('scroll', () => {
+      requestAnimationFrame(updateWrap);
+    }, { passive: true });
+
+    // Init
+    updateWrap();
 
     /* ── Scroll reveal ── */
     const revealEls = document.querySelectorAll('.reveal');
