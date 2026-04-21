@@ -329,6 +329,14 @@
       transform: scale(1.6);
     }
 
+    /* ── Site content slide-up container ── */
+    #site-content {
+      position: relative;
+      z-index: 60;
+      will-change: transform;
+      background: #06040e;
+    }
+
     /* ── Scroll hint ── */
     .scroll-hint {
       position: fixed;
@@ -1133,6 +1141,11 @@
 
 
   <!-- ══════════════════════════════════════
+       SITE CONTENT (slides up over wrap panel)
+  ══════════════════════════════════════ -->
+  <div id="site-content">
+
+  <!-- ══════════════════════════════════════
        SERVICES
   ══════════════════════════════════════ -->
   <section class="section-services" id="services">
@@ -1364,6 +1377,8 @@
     <span class="footer-copy">© 2025 Prudent Motions. All rights reserved.</span>
   </footer>
 
+  </div><!-- /#site-content -->
+
 
   <script>
     // ── Element refs ──
@@ -1377,6 +1392,7 @@
     const wrapSection  = document.getElementById('wrap-showcase');
     const wrapCounter  = document.getElementById('wrapCounter');
     const wrapDots     = document.querySelectorAll('.wrap-dot');
+    const siteContent  = document.getElementById('site-content');
     const wrapStages   = [
       document.getElementById('ws1'),
       document.getElementById('ws2'),
@@ -1442,49 +1458,64 @@
       const wrapScrolled = scrollY - wrapStart;
       const wrapP        = clamp(wrapScrolled / wrapZone);
 
+      // Exit threshold — last 18% of wrap scroll = site content slides up
+      const EXIT_START = 0.82;
+      const exitT      = clamp((wrapP - EXIT_START) / (1 - EXIT_START));
+      const exitEased  = easeOutCubic(exitT);
+
       let wrapTY;
 
       if (wrapScrolled <= 0) {
         // Still in hero — slide up as hero nears end (heroP 0.78 → 1.0)
         const slideT  = clamp((heroP - 0.78) / 0.22);
         wrapTY = (1 - easeOutCubic(slideT)) * 100;
-        // hide stages during slide
+        // hide stages during slide-in
         wrapStages.forEach(s => s.classList.remove('active'));
         wrapCounter.classList.remove('active');
-      } else if (wrapScrolled < wrapSection.offsetHeight) {
-        // Inside wrap section — fully up, scrub video
-        wrapTY = 0;
+        siteContent.style.transform = 'translateY(100vh)';
 
-        if (!wrapSeeking && Math.abs(wrapP - lastWrapVideoP) > 0.002) {
+      } else if (wrapScrolled < wrapSection.offsetHeight) {
+        // Inside wrap section
+        wrapTY = -exitEased * 100; // 0 → -100vh as exit progresses
+
+        // Site content slides up from below simultaneously
+        siteContent.style.transform = `translateY(${(1 - exitEased) * 100}vh)`;
+
+        // Scrub video (only during non-exit zone for cleaner UX)
+        const videoP = clamp(wrapP / EXIT_START);
+        if (!wrapSeeking && Math.abs(videoP - lastWrapVideoP) > 0.002) {
           if (wrapVideo.readyState >= 2 && wrapVideo.duration) {
             wrapSeeking = true;
-            wrapVideo.currentTime = wrapP * wrapVideo.duration;
-            lastWrapVideoP = wrapP;
+            wrapVideo.currentTime = videoP * wrapVideo.duration;
+            lastWrapVideoP = videoP;
           }
         }
 
-        // Stages
-        let activeIdx = stageBounds.findIndex(([lo, hi]) => wrapP >= lo && wrapP < hi);
-        if (wrapP >= 0.82) activeIdx = 4;
-
+        // Stages — only active before exit starts
+        let activeIdx = -1;
+        if (exitT === 0) {
+          activeIdx = stageBounds.findIndex(([lo, hi]) => videoP >= lo && videoP < hi);
+          if (videoP >= 0.82) activeIdx = 4;
+        }
         wrapStages.forEach((s, i) => s.classList.toggle('active', i === activeIdx));
         wrapDots.forEach((d, i)   => d.classList.toggle('active', i === activeIdx));
-
         if (activeIdx >= 0) {
           wrapCounter.textContent = counterLabels[activeIdx];
           wrapCounter.classList.add('active');
+        } else if (exitT > 0) {
+          wrapCounter.classList.remove('active');
         }
+
       } else {
-        // Past wrap section — keep panel up but hide it so content below is visible
-        wrapTY = 0;
-        wrapSticky.style.opacity = '0';
+        // Past wrap section — panel fully gone, site content in place
+        wrapTY = -100;
+        siteContent.style.transform = 'translateY(0)';
         wrapSticky.style.pointerEvents = 'none';
       }
 
-      // Restore visibility when back in range
       if (wrapScrolled < wrapSection.offsetHeight) {
         wrapSticky.style.opacity = '1';
-        wrapSticky.style.pointerEvents = 'auto';
+        wrapSticky.style.pointerEvents = exitT > 0.5 ? 'none' : 'auto';
       }
 
       wrapSticky.style.transform = `translateY(${wrapTY}vh)`;
