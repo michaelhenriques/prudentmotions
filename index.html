@@ -573,10 +573,15 @@
       height: 100%;
       min-height: 360px;
       display: block;
+      object-fit: cover;
       transition: transform 0.85s cubic-bezier(0.22, 1, 0.36, 1);
+      filter: saturate(0.85) brightness(0.9);
     }
 
-    .gallery-item:hover .gallery-img { transform: scale(1.05); }
+    .gallery-item:hover .gallery-img {
+      transform: scale(1.05);
+      filter: saturate(1) brightness(1);
+    }
 
     .gallery-overlay {
       position: absolute;
@@ -600,13 +605,32 @@
       color: var(--purple-light);
     }
 
-    /* Placeholder gradients — deep purple cinematic tones */
-    .img-pl-1 { background: linear-gradient(145deg, #0d0a1e 0%, #1a1035 45%, #0a0618 100%); }
-    .img-pl-2 { background: linear-gradient(160deg, #0c0820 0%, #1e1240 55%, #250e45 100%); }
-    .img-pl-3 { background: linear-gradient(120deg, #100a22 0%, #1c1038 50%, #2a0e48 100%); }
-    .img-pl-4 { background: linear-gradient(150deg, #09061a 0%, #1a0e38 60%, #2a0e50 100%); }
-    .img-pl-5 { background: linear-gradient(130deg, #0e0a20 0%, #1e1240 50%, #130c30 100%); }
-    .img-pl-6 { background: linear-gradient(140deg, #0a0618 0%, #180e32 45%, #280c48 100%); }
+    /* ── Services side image ── */
+    .services-visual {
+      position: absolute;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      width: 38%;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .services-visual::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, #0b0718 0%, rgba(11,7,24,0.4) 60%, transparent 100%);
+      z-index: 1;
+    }
+
+    .services-visual img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0.35;
+      filter: saturate(0.5) contrast(1.1);
+    }
 
     /* Ticker */
     .gallery-ticker-wrap {
@@ -1136,7 +1160,10 @@
   <!-- ══════════════════════════════════════
        SERVICES
   ══════════════════════════════════════ -->
-  <section class="section-services" id="services">
+  <section class="section-services" id="services" style="overflow:hidden">
+    <div class="services-visual">
+      <img src="https://images.unsplash.com/photo-1614162692292-7ac56d7f7f1e?auto=format&fit=crop&w=900&q=80" alt="" loading="lazy" />
+    </div>
     <div class="services-inner">
 
       <div class="services-header reveal">
@@ -1185,19 +1212,19 @@
 
       <div class="gallery-grid reveal">
         <div class="gallery-item">
-          <div class="gallery-img img-pl-1"></div>
+          <img class="gallery-img" src="https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=1200&q=80" alt="Satin Black wrap" loading="lazy" />
           <div class="gallery-overlay">
             <span class="gallery-caption">Satin Black — Lamborghini Huracán</span>
           </div>
         </div>
         <div class="gallery-item">
-          <div class="gallery-img img-pl-2" style="min-height:250px"></div>
+          <img class="gallery-img" style="min-height:250px" src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=800&q=80" alt="Brushed Violet Porsche" loading="lazy" />
           <div class="gallery-overlay">
             <span class="gallery-caption">Brushed Violet — Porsche 911</span>
           </div>
         </div>
         <div class="gallery-item">
-          <div class="gallery-img img-pl-3" style="min-height:250px"></div>
+          <img class="gallery-img" style="min-height:250px" src="https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=800&q=80" alt="Chrome Delete BMW" loading="lazy" />
           <div class="gallery-overlay">
             <span class="gallery-caption">Chrome Delete — BMW M4</span>
           </div>
@@ -1206,19 +1233,19 @@
 
       <div class="gallery-grid-b reveal" style="transition-delay:0.12s">
         <div class="gallery-item">
-          <div class="gallery-img img-pl-4" style="min-height:280px"></div>
+          <img class="gallery-img" style="min-height:280px" src="https://images.unsplash.com/photo-1544636331-e26879cd4d9b?auto=format&fit=crop&w=800&q=80" alt="PPF Ferrari" loading="lazy" />
           <div class="gallery-overlay">
             <span class="gallery-caption">PPF Full Front — Ferrari 488</span>
           </div>
         </div>
         <div class="gallery-item">
-          <div class="gallery-img img-pl-5"></div>
+          <img class="gallery-img" src="https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=1200&q=80" alt="Ceramic and Tint Range Rover" loading="lazy" />
           <div class="gallery-overlay">
             <span class="gallery-caption">Ceramic + Tint — Range Rover SV</span>
           </div>
         </div>
         <div class="gallery-item">
-          <div class="gallery-img img-pl-6" style="min-height:280px"></div>
+          <img class="gallery-img" style="min-height:280px" src="https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=800&q=80" alt="Matte White Mercedes" loading="lazy" />
           <div class="gallery-overlay">
             <span class="gallery-caption">Matte White — Mercedes G63</span>
           </div>
@@ -1505,14 +1532,26 @@
 
         // Site-content slide-up: switch to fixed so it moves independently of scroll
         if (exitT > 0) {
-          if (!siteFixed) {
-            siteFixed = true;
-            siteContent.style.position = 'fixed';
-            siteContent.style.top      = '0';
-            siteContent.style.left     = '0';
-            siteContent.style.right    = '0';
+          if (exitT >= 0.999) {
+            // Transition done — back to normal flow so user can scroll the site
+            if (siteFixed) {
+              siteFixed = false;
+              siteContent.style.position  = '';
+              siteContent.style.top       = '';
+              siteContent.style.left      = '';
+              siteContent.style.right     = '';
+              siteContent.style.transform = '';
+            }
+          } else {
+            if (!siteFixed) {
+              siteFixed = true;
+              siteContent.style.position = 'fixed';
+              siteContent.style.top      = '0';
+              siteContent.style.left     = '0';
+              siteContent.style.right    = '0';
+            }
+            siteContent.style.transform = `translateY(${(1 - exitEased) * 100}vh)`;
           }
-          siteContent.style.transform = `translateY(${(1 - exitEased) * 100}vh)`;
         } else {
           // Pre-exit: site-content in normal flow, naturally below viewport
           if (siteFixed) {
