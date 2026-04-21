@@ -187,12 +187,16 @@
     }
 
     .wrap-sticky {
-      position: sticky;
+      position: fixed;
       top: 0;
+      left: 0;
+      right: 0;
       height: 100vh;
       width: 100%;
       overflow: hidden;
       will-change: transform;
+      z-index: 50;
+      transform: translateY(100vh);
     }
 
     .wrap-video {
@@ -323,6 +327,44 @@
     .wrap-dot.active {
       background: var(--purple-light);
       transform: scale(1.6);
+    }
+
+    /* ── Scroll hint ── */
+    .scroll-hint {
+      position: fixed;
+      bottom: 36px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 60;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      pointer-events: none;
+      transition: opacity 0.5s ease;
+    }
+
+    .scroll-hint-label {
+      font-family: 'Raleway', sans-serif;
+      font-size: 0.58rem;
+      font-weight: 300;
+      letter-spacing: 0.55em;
+      text-transform: uppercase;
+      color: rgba(240, 236, 253, 0.45);
+    }
+
+    .scroll-hint-line {
+      width: 1px;
+      height: 44px;
+      background: linear-gradient(to bottom, rgba(155,114,224,0.7), transparent);
+      transform-origin: top center;
+      animation: scrollPulse 1.9s cubic-bezier(0.4,0,0.2,1) infinite;
+    }
+
+    @keyframes scrollPulse {
+      0%   { transform: scaleY(0);   opacity: 0; }
+      30%  { opacity: 1; }
+      100% { transform: scaleY(1);   opacity: 0; }
     }
 
     /* ══════════════════════════════════════
@@ -1000,6 +1042,12 @@
   <!-- Scroll progress -->
   <div class="progress-line" id="progressLine"></div>
 
+  <!-- Scroll hint -->
+  <div class="scroll-hint" id="scrollHint">
+    <span class="scroll-hint-label">Scroll</span>
+    <div class="scroll-hint-line"></div>
+  </div>
+
   <!-- Hero -->
   <section class="hero" id="hero">
     <div class="video-sticky">
@@ -1318,79 +1366,18 @@
 
 
   <script>
-    const video        = document.getElementById('heroVideo');
+    // ── Element refs ──
+    const heroVideo    = document.getElementById('heroVideo');
     const nav          = document.getElementById('nav');
     const hero         = document.getElementById('hero');
     const progressLine = document.getElementById('progressLine');
-
-    let navVisible   = false;
-    let rafId        = null;
-    let lastProgress = -1;
-    let seeking      = false;
-
-    // Prevent the browser from trying to play — we only scrub manually
-    video.pause();
-    video.addEventListener('play', () => video.pause());
-
-    function getProgress() {
-      const scrollTop  = window.scrollY;
-      const heroHeight = hero.offsetHeight - window.innerHeight;
-      return Math.min(Math.max(scrollTop / heroHeight, 0), 1);
-    }
-
-    function update() {
-      const progress = getProgress();
-
-      // Only seek if the change is meaningful and a previous seek isn't pending
-      if (!seeking && Math.abs(progress - lastProgress) > 0.002) {
-        if (video.readyState >= 2 && video.duration) {
-          seeking = true;
-          video.currentTime = progress * video.duration;
-          lastProgress = progress;
-        }
-      }
-
-      progressLine.style.width = (progress * 100) + '%';
-
-      if (progress > 0.01 && progress < 0.99) {
-        progressLine.classList.add('visible');
-      } else {
-        progressLine.classList.remove('visible');
-      }
-
-      if (progress >= 0.98 && !navVisible) {
-        navVisible = true;
-        nav.classList.add('visible');
-      } else if (progress < 0.95 && navVisible) {
-        navVisible = false;
-        nav.classList.remove('visible');
-      }
-
-      rafId = null;
-    }
-
-    // Release the seeking lock once the frame is decoded
-    video.addEventListener('seeked', () => { seeking = false; });
-
-    function onScroll() {
-      if (!rafId) rafId = requestAnimationFrame(update);
-    }
-
-    video.addEventListener('loadeddata', () => {
-      video.pause();
-      window.addEventListener('scroll', onScroll, { passive: true });
-      update();
-    });
-
-    window.addEventListener('scroll', onScroll, { passive: true });
-
-    /* ── Wrap showcase scroll ── */
-    const wrapVideo   = document.getElementById('wrapVideo');
-    const wrapSticky  = document.getElementById('wrapSticky');
-    const wrapSection = document.getElementById('wrap-showcase');
-    const wrapCounter = document.getElementById('wrapCounter');
-    const wrapDots    = document.querySelectorAll('.wrap-dot');
-    const wrapStages  = [
+    const scrollHint   = document.getElementById('scrollHint');
+    const wrapVideo    = document.getElementById('wrapVideo');
+    const wrapSticky   = document.getElementById('wrapSticky');
+    const wrapSection  = document.getElementById('wrap-showcase');
+    const wrapCounter  = document.getElementById('wrapCounter');
+    const wrapDots     = document.querySelectorAll('.wrap-dot');
+    const wrapStages   = [
       document.getElementById('ws1'),
       document.getElementById('ws2'),
       document.getElementById('ws3'),
@@ -1398,100 +1385,129 @@
       document.getElementById('ws5'),
     ];
 
-    // Stage thresholds — videoProgress 0..1 at which each stage is active
-    const stageBounds = [
-      [0.00, 0.22],
-      [0.22, 0.42],
-      [0.42, 0.62],
-      [0.62, 0.82],
-      [0.82, 1.00],
-    ];
-    const counterLabels = ['01 / 05','02 / 05','03 / 05','04 / 05','05 / 05'];
+    const stageBounds    = [[0,0.22],[0.22,0.42],[0.42,0.62],[0.62,0.82],[0.82,1]];
+    const counterLabels  = ['01 / 05','02 / 05','03 / 05','04 / 05','05 / 05'];
 
-    let wrapSeeking = false;
-    let lastWrapProgress = -1;
+    // ── State ──
+    let navVisible      = false;
+    let heroSeeking     = false;
+    let wrapSeeking     = false;
+    let lastHeroP       = -1;
+    let lastWrapVideoP  = -1;
+    let rafId           = null;
 
-    wrapVideo.pause();
-    wrapVideo.addEventListener('play', () => wrapVideo.pause());
+    // Keep both videos paused — we scrub manually
+    [heroVideo, wrapVideo].forEach(v => {
+      v.pause();
+      v.addEventListener('play', () => v.pause());
+    });
+    heroVideo.addEventListener('seeked', () => { heroSeeking = false; });
     wrapVideo.addEventListener('seeked', () => { wrapSeeking = false; });
 
-    function getWrapProgress() {
-      const rect       = wrapSection.getBoundingClientRect();
-      const totalScroll = wrapSection.offsetHeight - window.innerHeight;
-      const scrolled   = -rect.top;
-      return Math.min(Math.max(scrolled / totalScroll, 0), 1);
-    }
+    // ── Helpers ──
+    const clamp = (v, lo=0, hi=1) => Math.min(Math.max(v, lo), hi);
+    const easeOutCubic = t => 1 - Math.pow(1 - t, 3);
 
-    function updateWrap() {
-      const p = getWrapProgress();
+    // ── Main tick ──
+    function tick() {
+      const scrollY = window.scrollY;
+      const vh      = window.innerHeight;
 
-      // Slide-up entrance: first 15% of section scroll
-      const SLIDE_ZONE = 0.15;
-      if (p < SLIDE_ZONE) {
-        const slideP = p / SLIDE_ZONE; // 0→1
-        const translateY = (1 - slideP) * 100;
-        wrapSticky.style.transform = `translateY(${translateY}vh)`;
-        // hide all stages during slide-in
-        wrapStages.forEach(s => s.classList.remove('active'));
-        wrapCounter.classList.remove('active');
-        return;
-      }
+      // ── Hero ──
+      const heroZone = hero.offsetHeight - vh;
+      const heroP    = clamp(scrollY / heroZone);
 
-      wrapSticky.style.transform = 'translateY(0)';
-
-      // Video scrubbing over remaining 85%
-      const videoP = (p - SLIDE_ZONE) / (1 - SLIDE_ZONE);
-
-      if (!wrapSeeking && Math.abs(videoP - lastWrapProgress) > 0.002) {
-        if (wrapVideo.readyState >= 2 && wrapVideo.duration) {
-          wrapSeeking = true;
-          wrapVideo.currentTime = videoP * wrapVideo.duration;
-          lastWrapProgress = videoP;
+      if (!heroSeeking && Math.abs(heroP - lastHeroP) > 0.002) {
+        if (heroVideo.readyState >= 2 && heroVideo.duration) {
+          heroSeeking = true;
+          heroVideo.currentTime = heroP * heroVideo.duration;
+          lastHeroP = heroP;
         }
       }
 
-      // Activate the correct stage
-      let activeIdx = -1;
-      stageBounds.forEach(([from, to], i) => {
-        if (videoP >= from && videoP < to) activeIdx = i;
-      });
-      // clamp last stage at end
-      if (videoP >= 0.82) activeIdx = 4;
+      // Progress bar
+      progressLine.style.width = (heroP * 100) + '%';
+      progressLine.classList.toggle('visible', heroP > 0.01 && heroP < 0.99);
 
-      wrapStages.forEach((s, i) => {
-        s.classList.toggle('active', i === activeIdx);
-      });
-      wrapDots.forEach((d, i) => {
-        d.classList.toggle('active', i === activeIdx);
-      });
+      // Nav
+      if (heroP >= 0.98 && !navVisible) { navVisible = true;  nav.classList.add('visible'); }
+      else if (heroP < 0.95 && navVisible) { navVisible = false; nav.classList.remove('visible'); }
 
-      if (activeIdx >= 0) {
-        wrapCounter.textContent = counterLabels[activeIdx];
-        wrapCounter.classList.add('active');
+      // Scroll hint — fade out quickly once scrolling starts
+      scrollHint.style.opacity = clamp(1 - heroP * 12);
+
+      // ── Wrap panel ──
+      const wrapStart   = wrapSection.offsetTop;
+      const wrapZone    = wrapSection.offsetHeight - vh;
+      const wrapScrolled = scrollY - wrapStart;
+      const wrapP        = clamp(wrapScrolled / wrapZone);
+
+      let wrapTY;
+
+      if (wrapScrolled <= 0) {
+        // Still in hero — slide up as hero nears end (heroP 0.78 → 1.0)
+        const slideT  = clamp((heroP - 0.78) / 0.22);
+        wrapTY = (1 - easeOutCubic(slideT)) * 100;
+        // hide stages during slide
+        wrapStages.forEach(s => s.classList.remove('active'));
+        wrapCounter.classList.remove('active');
+      } else if (wrapScrolled < wrapSection.offsetHeight) {
+        // Inside wrap section — fully up, scrub video
+        wrapTY = 0;
+
+        if (!wrapSeeking && Math.abs(wrapP - lastWrapVideoP) > 0.002) {
+          if (wrapVideo.readyState >= 2 && wrapVideo.duration) {
+            wrapSeeking = true;
+            wrapVideo.currentTime = wrapP * wrapVideo.duration;
+            lastWrapVideoP = wrapP;
+          }
+        }
+
+        // Stages
+        let activeIdx = stageBounds.findIndex(([lo, hi]) => wrapP >= lo && wrapP < hi);
+        if (wrapP >= 0.82) activeIdx = 4;
+
+        wrapStages.forEach((s, i) => s.classList.toggle('active', i === activeIdx));
+        wrapDots.forEach((d, i)   => d.classList.toggle('active', i === activeIdx));
+
+        if (activeIdx >= 0) {
+          wrapCounter.textContent = counterLabels[activeIdx];
+          wrapCounter.classList.add('active');
+        }
+      } else {
+        // Past wrap section — keep panel up but hide it so content below is visible
+        wrapTY = 0;
+        wrapSticky.style.opacity = '0';
+        wrapSticky.style.pointerEvents = 'none';
       }
+
+      // Restore visibility when back in range
+      if (wrapScrolled < wrapSection.offsetHeight) {
+        wrapSticky.style.opacity = '1';
+        wrapSticky.style.pointerEvents = 'auto';
+      }
+
+      wrapSticky.style.transform = `translateY(${wrapTY}vh)`;
+
+      rafId = null;
     }
 
-    wrapVideo.addEventListener('loadeddata', () => {
-      wrapVideo.pause();
-    });
+    function onScroll() {
+      if (!rafId) rafId = requestAnimationFrame(tick);
+    }
 
-    window.addEventListener('scroll', () => {
-      requestAnimationFrame(updateWrap);
-    }, { passive: true });
+    window.addEventListener('scroll', onScroll, { passive: true });
 
-    // Init
-    updateWrap();
+    // Init on first video ready (run tick even before scroll)
+    heroVideo.addEventListener('loadeddata', () => { heroVideo.pause(); tick(); });
+    wrapVideo.addEventListener('loadeddata',  () => { wrapVideo.pause(); });
+    tick();
 
     /* ── Scroll reveal ── */
     const revealEls = document.querySelectorAll('.reveal');
     const revealObserver = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('revealed');
-        }
-      });
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('revealed'); });
     }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
-
     revealEls.forEach(el => revealObserver.observe(el));
   </script>
 </body>
