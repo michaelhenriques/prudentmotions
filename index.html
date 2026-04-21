@@ -1458,31 +1458,31 @@
       const wrapScrolled = scrollY - wrapStart;
       const wrapP        = clamp(wrapScrolled / wrapZone);
 
-      // Exit threshold — last 18% of wrap scroll = site content slides up
-      const EXIT_START = 0.82;
+      // Exit: last 20% of wrap scroll — site content slides UP over the panel
+      const EXIT_START = 0.80;
       const exitT      = clamp((wrapP - EXIT_START) / (1 - EXIT_START));
       const exitEased  = easeOutCubic(exitT);
+
+      // Video scrubs 0 → EXIT_START, then holds on last frame
+      const videoP = clamp(wrapP / EXIT_START);
 
       let wrapTY;
 
       if (wrapScrolled <= 0) {
-        // Still in hero — slide up as hero nears end (heroP 0.78 → 1.0)
-        const slideT  = clamp((heroP - 0.78) / 0.22);
+        // Still in hero — panel slides up as hero nears completion
+        const slideT = clamp((heroP - 0.78) / 0.22);
         wrapTY = (1 - easeOutCubic(slideT)) * 100;
-        // hide stages during slide-in
         wrapStages.forEach(s => s.classList.remove('active'));
         wrapCounter.classList.remove('active');
         siteContent.style.transform = 'translateY(100vh)';
 
       } else if (wrapScrolled < wrapSection.offsetHeight) {
-        // Inside wrap section
-        wrapTY = -exitEased * 100; // 0 → -100vh as exit progresses
+        // Wrap panel stays put — site content slides over it from below
+        wrapTY = 0;
+        wrapSticky.style.opacity = '1';
+        wrapSticky.style.pointerEvents = exitT > 0.3 ? 'none' : 'auto';
 
-        // Site content slides up from below simultaneously
-        siteContent.style.transform = `translateY(${(1 - exitEased) * 100}vh)`;
-
-        // Scrub video (only during non-exit zone for cleaner UX)
-        const videoP = clamp(wrapP / EXIT_START);
+        // Scrub video
         if (!wrapSeeking && Math.abs(videoP - lastWrapVideoP) > 0.002) {
           if (wrapVideo.readyState >= 2 && wrapVideo.duration) {
             wrapSeeking = true;
@@ -1491,31 +1491,32 @@
           }
         }
 
-        // Stages — only active before exit starts
-        let activeIdx = -1;
-        if (exitT === 0) {
-          activeIdx = stageBounds.findIndex(([lo, hi]) => videoP >= lo && videoP < hi);
-          if (videoP >= 0.82) activeIdx = 4;
-        }
-        wrapStages.forEach((s, i) => s.classList.toggle('active', i === activeIdx));
-        wrapDots.forEach((d, i)   => d.classList.toggle('active', i === activeIdx));
+        // Stages: show normally pre-exit; stage 5 stays visible + fades during exit
+        let activeIdx = stageBounds.findIndex(([lo, hi]) => videoP >= lo && videoP < hi);
+        if (videoP >= 0.82) activeIdx = 4;
+
+        wrapStages.forEach((s, i) => {
+          s.classList.toggle('active', i === activeIdx);
+          // fade out stage 5 text as site content rises over it
+          if (i === 4) s.style.opacity = activeIdx === 4 ? String(1 - exitEased) : '';
+        });
+        wrapDots.forEach((d, i) => d.classList.toggle('active', i === activeIdx));
+
         if (activeIdx >= 0) {
           wrapCounter.textContent = counterLabels[activeIdx];
           wrapCounter.classList.add('active');
-        } else if (exitT > 0) {
-          wrapCounter.classList.remove('active');
+          wrapCounter.style.opacity = String(1 - exitEased);
         }
 
-      } else {
-        // Past wrap section — panel fully gone, site content in place
-        wrapTY = -100;
-        siteContent.style.transform = 'translateY(0)';
-        wrapSticky.style.pointerEvents = 'none';
-      }
+        // Site content rises from below (z-index 60 > wrap panel 50 — covers it)
+        siteContent.style.transform = `translateY(${(1 - exitEased) * 100}vh)`;
 
-      if (wrapScrolled < wrapSection.offsetHeight) {
-        wrapSticky.style.opacity = '1';
-        wrapSticky.style.pointerEvents = exitT > 0.5 ? 'none' : 'auto';
+      } else {
+        // Past wrap section — hide panel, site content fully in place
+        wrapTY = 0;
+        wrapSticky.style.opacity = '0';
+        wrapSticky.style.pointerEvents = 'none';
+        siteContent.style.transform = 'translateY(0)';
       }
 
       wrapSticky.style.transform = `translateY(${wrapTY}vh)`;
