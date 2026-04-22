@@ -1427,6 +1427,7 @@
     let lastWrapVideoP  = -1;
     let rafId           = null;
     let siteFixed       = false; // site-content in fixed mode during slide-in
+    let siteUnlocked    = false; // once true, never re-enter fixed mode
 
     // Keep both videos paused — we scrub manually
     [heroVideo, wrapVideo].forEach(v => {
@@ -1531,36 +1532,37 @@
         }
 
         // Site-content slide-up: switch to fixed so it moves independently of scroll
-        if (exitT > 0) {
-          if (exitT >= 0.999) {
-            // Transition done — back to normal flow so user can scroll the site
-            if (siteFixed) {
+        if (!siteUnlocked) {
+          if (exitT > 0) {
+            if (exitT >= 0.999) {
+              // Transition done — permanently unlock; revert to normal flow
+              siteUnlocked = true;
               siteFixed = false;
               siteContent.style.position  = '';
               siteContent.style.top       = '';
               siteContent.style.left      = '';
               siteContent.style.right     = '';
               siteContent.style.transform = '';
+            } else {
+              if (!siteFixed) {
+                siteFixed = true;
+                siteContent.style.position = 'fixed';
+                siteContent.style.top      = '0';
+                siteContent.style.left     = '0';
+                siteContent.style.right    = '0';
+              }
+              siteContent.style.transform = `translateY(${(1 - exitEased) * 100}vh)`;
             }
           } else {
-            if (!siteFixed) {
-              siteFixed = true;
-              siteContent.style.position = 'fixed';
-              siteContent.style.top      = '0';
-              siteContent.style.left     = '0';
-              siteContent.style.right    = '0';
+            // Pre-exit: site-content in normal flow, naturally below viewport
+            if (siteFixed) {
+              siteFixed = false;
+              siteContent.style.position = '';
+              siteContent.style.top = '';
+              siteContent.style.left = '';
+              siteContent.style.right = '';
+              siteContent.style.transform = '';
             }
-            siteContent.style.transform = `translateY(${(1 - exitEased) * 100}vh)`;
-          }
-        } else {
-          // Pre-exit: site-content in normal flow, naturally below viewport
-          if (siteFixed) {
-            siteFixed = false;
-            siteContent.style.position = '';
-            siteContent.style.top = '';
-            siteContent.style.left = '';
-            siteContent.style.right = '';
-            siteContent.style.transform = '';
           }
         }
 
