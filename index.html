@@ -439,13 +439,10 @@
 
     .portfolio-label {
       position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      text-align: center;
+      top: 48px;
+      left: 60px;
       z-index: 2;
       pointer-events: none;
-      width: 100%;
       transition: opacity 0.7s ease;
     }
 
@@ -456,17 +453,17 @@
       letter-spacing: 0.5em;
       text-transform: uppercase;
       color: var(--purple-light);
-      margin-bottom: 22px;
+      margin-bottom: 16px;
     }
 
     .portfolio-label-title {
       font-family: 'Cormorant Garamond', serif;
-      font-size: clamp(5rem, 13vw, 11rem);
+      font-size: clamp(3rem, 7vw, 6.5rem);
       font-weight: 300;
       color: var(--white);
-      line-height: 0.88;
+      line-height: 0.9;
       letter-spacing: -0.02em;
-      margin-bottom: 28px;
+      margin-bottom: 18px;
     }
 
     .portfolio-label-scroll {
@@ -478,11 +475,9 @@
       color: rgba(240,236,253,0.28);
       display: flex;
       align-items: center;
-      justify-content: center;
-      gap: 14px;
+      gap: 12px;
     }
 
-    .portfolio-label-scroll::before,
     .portfolio-label-scroll::after {
       content: '';
       display: inline-block;
@@ -1295,36 +1290,6 @@
   <div id="site-content">
 
   <!-- ══════════════════════════════════════
-       PORTFOLIO SCROLL VIDEO
-  ══════════════════════════════════════ -->
-  <section class="section-portfolio" id="portfolio">
-    <div class="portfolio-sticky" id="portfolioSticky">
-      <video
-        id="portfolioVideo"
-        class="portfolio-video"
-        src="portfolio.mp4"
-        muted
-        playsinline
-        preload="auto"
-      ></video>
-
-      <!-- Intro label — fades out on scroll -->
-      <div class="portfolio-label" id="portfolioLabel">
-        <p class="portfolio-label-eyebrow">Prudent Motions</p>
-        <h2 class="portfolio-label-title">Our Work</h2>
-        <p class="portfolio-label-scroll">Scroll to explore</p>
-      </div>
-
-      <!-- Per-car label (bottom-left) -->
-      <div class="portfolio-car-label" id="portfolioCarLabel">
-        <div class="portfolio-car-line"></div>
-        <div class="portfolio-car-name" id="portfolioCarName">Chevrolet Camaro ZL1</div>
-        <div class="portfolio-car-wrap" id="portfolioCarWrap">Gloss White</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ══════════════════════════════════════
        SERVICES
   ══════════════════════════════════════ -->
   <section class="section-services" id="services" style="overflow:hidden">
@@ -1367,131 +1332,25 @@
 
 
   <!-- ══════════════════════════════════════
-       GALLERY
+       PORTFOLIO SCROLL VIDEO
   ══════════════════════════════════════ -->
-  <section class="section-gallery" id="work">
-    <div class="gallery-inner">
+  <section class="section-portfolio" id="portfolio">
+    <div class="portfolio-sticky" id="portfolioSticky">
+      <video
+        id="portfolioVideo"
+        class="portfolio-video"
+        src="portfolio.mp4"
+        muted
+        playsinline
+        preload="auto"
+      ></video>
 
-      <div class="gallery-header reveal">
-        <div class="section-label">Selected Work</div>
-        <h2 class="gallery-title">Our<br><em>Portfolio</em></h2>
+      <!-- Intro label top-left — fades out on scroll -->
+      <div class="portfolio-label" id="portfolioLabel">
+        <p class="portfolio-label-eyebrow">Prudent Motions</p>
+        <h2 class="portfolio-label-title">Our Work</h2>
+        <p class="portfolio-label-scroll">Scroll to explore</p>
       </div>
-
-      <div class="gallery-grid reveal">
-        <div class="gallery-item">
-          <img class="gallery-img" src="https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=1200&q=80" alt="Satin Black wrap" loading="lazy" />
-          <div class="gallery-overlay">
-            <span class="gallery-caption">Satin Black — Lamborghini Huracán</span>
-          </div>
-        </div>
-        <div class="gallery-item">
-          <img class="gallery-img" style="min-height:250px" src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=800&q=80" alt="Brushed Violet Porsche" loading="lazy" />
-          <div class="gallery-overlay">
-            <span class="gallery-caption">Brushed Violet — Porsche 911</span>
-          </div>
-        </div>
-        <div class="gallery-item">
-          <img class="gallery-img" style="min-height:250px" src="https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=800&q=80" alt="Chrome Delete BMW" loading="lazy" />
-          <div class="gallery-overlay">
-            <span class="gallery-caption">Chrome Delete — BMW M4</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="gallery-grid-b reveal" style="transition-delay:0.12s">
-        <div class="gallery-item">
-          <img class="gallery-img" style="min-height:280px" src="https://images.unsplash.com/photo-1544636331-e26879cd4d9b?auto=format&fit=crop&w=800&q=80" alt="PPF Ferrari" loading="lazy" />
-          <div class="gallery-overlay">
-            <span class="gallery-caption">PPF Full Front — Ferrari 488</span>
-          </div>
-        </div>
-        <div class="gallery-item">
-          <img class="gallery-img" src="https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=1200&q=80" alt="Ceramic and Tint Range Rover" loading="lazy" />
-          <div class="gallery-overlay">
-            <span class="gallery-caption">Ceramic + Tint — Range Rover SV</span>
-          </div>
-        </div>
-        <div class="gallery-item">
-          <img class="gallery-img" style="min-height:280px" src="https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=800&q=80" alt="Matte White Mercedes" loading="lazy" />
-          <div class="gallery-overlay">
-            <span class="gallery-caption">Matte White — Mercedes G63</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="gallery-ticker-wrap reveal" style="transition-delay:0.2s">
-        <div class="gallery-ticker">
-          <span>Full Vehicle Wraps</span>
-          <span class="dot">◆</span>
-          <span>Paint Protection Film</span>
-          <span class="dot">◆</span>
-          <span>Window Tinting</span>
-          <span class="dot">◆</span>
-          <span>Ceramic Coating</span>
-          <span class="dot">◆</span>
-          <span>Chrome Delete</span>
-          <span class="dot">◆</span>
-          <span>Custom Design</span>
-          <span class="dot">◆</span>
-          <span>Full Vehicle Wraps</span>
-          <span class="dot">◆</span>
-          <span>Paint Protection Film</span>
-          <span class="dot">◆</span>
-          <span>Window Tinting</span>
-          <span class="dot">◆</span>
-          <span>Ceramic Coating</span>
-          <span class="dot">◆</span>
-          <span>Chrome Delete</span>
-          <span class="dot">◆</span>
-          <span>Custom Design</span>
-          <span class="dot">◆</span>
-        </div>
-      </div>
-
-    </div>
-  </section>
-
-
-  <!-- ══════════════════════════════════════
-       PROCESS
-  ══════════════════════════════════════ -->
-  <section class="section-process" id="process">
-    <div class="process-bg-text">Process</div>
-
-    <div class="process-inner">
-
-      <div class="process-header reveal">
-        <h2 class="process-title">The<br>Process</h2>
-        <p class="process-intro">Every vehicle that passes through our doors receives the same uncompromising attention — from the first consultation to the moment we hand back the keys.</p>
-      </div>
-
-      <div class="process-steps">
-        <div class="process-step reveal">
-          <div class="step-num">01</div>
-          <div class="step-title">Consultation</div>
-          <div class="step-gold-line"></div>
-          <p class="step-desc">We meet, we listen. Understanding your vision, your vehicle, and your timeline before a single decision is made.</p>
-        </div>
-        <div class="process-step reveal" style="transition-delay:0.1s">
-          <div class="step-num">02</div>
-          <div class="step-title">Design</div>
-          <div class="step-gold-line"></div>
-          <p class="step-desc">Digital renders and material samples bring the concept to life. You approve every detail before we begin.</p>
-        </div>
-        <div class="process-step reveal" style="transition-delay:0.2s">
-          <div class="step-num">03</div>
-          <div class="step-title">Installation</div>
-          <div class="step-gold-line"></div>
-          <p class="step-desc">Climate-controlled environment. Certified technicians. Premium materials. Zero shortcuts, zero compromises.</p>
-        </div>
-        <div class="process-step reveal" style="transition-delay:0.3s">
-          <div class="step-num">04</div>
-          <div class="step-title">Delivery</div>
-          <div class="step-gold-line"></div>
-          <p class="step-desc">A final walkthrough together, care instructions in hand, and a finish that speaks for itself the moment it hits sunlight.</p>
-        </div>
-      </div>
-
     </div>
   </section>
 
@@ -1587,21 +1446,9 @@
     const counterLabels  = ['01 / 05','02 / 05','03 / 05','04 / 05','05 / 05'];
 
     // ── Portfolio refs ──
-    const portfolioVideo    = document.getElementById('portfolioVideo');
-    const portfolioSection  = document.getElementById('portfolio');
-    const portfolioLabel    = document.getElementById('portfolioLabel');
-    const portfolioCarLabel = document.getElementById('portfolioCarLabel');
-    const portfolioCarName  = document.getElementById('portfolioCarName');
-    const portfolioCarWrap  = document.getElementById('portfolioCarWrap');
-
-    // Cars in video order (adjust time thresholds once you know the video duration)
-    const portfolioCars = [
-      { name: 'Chevrolet Camaro ZL1', wrap: 'Gloss White'         },
-      { name: 'BMW M4',               wrap: 'Gloss Ocean Blue'     },
-      { name: 'Mercedes G-Wagon',     wrap: 'Matte Obsidian Black' },
-      { name: 'Ford F-150',           wrap: 'Gloss Candy Red'      },
-      { name: 'Porsche 911 Turbo',    wrap: 'Deep Violet Purple'   },
-    ];
+    const portfolioVideo   = document.getElementById('portfolioVideo');
+    const portfolioSection = document.getElementById('portfolio');
+    const portfolioLabel   = document.getElementById('portfolioLabel');
 
     // ── State ──
     let navVisible      = false;
@@ -1610,8 +1457,7 @@
     let portfolioSeeking = false;
     let lastHeroP       = -1;
     let lastWrapVideoP  = -1;
-    let lastPortfolioP  = -1;
-    let lastCarIdx      = -1;
+    let lastPortfolioP    = -1;
     let portfolioTopCache = null;
     let rafId           = null;
     let siteFixed       = false; // site-content in fixed mode during slide-in
@@ -1795,22 +1641,6 @@
           }
         }
 
-        // Car label — show after intro fades (portfolioP > 0.06), cycle through cars
-        if (portfolioP > 0.05) {
-          const carIdx = Math.min(
-            Math.floor(portfolioP * portfolioCars.length),
-            portfolioCars.length - 1
-          );
-          if (carIdx !== lastCarIdx) {
-            lastCarIdx = carIdx;
-            portfolioCarName.textContent = portfolioCars[carIdx].name;
-            portfolioCarWrap.textContent = portfolioCars[carIdx].wrap;
-          }
-          portfolioCarLabel.classList.add('visible');
-        } else {
-          portfolioCarLabel.classList.remove('visible');
-          lastCarIdx = -1;
-        }
       }
 
       rafId = null;
