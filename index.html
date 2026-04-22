@@ -401,6 +401,143 @@
     }
 
     /* ══════════════════════════════════════
+       PORTFOLIO SCROLL VIDEO
+    ══════════════════════════════════════ */
+    .section-portfolio {
+      position: relative;
+      height: 500vh;
+      background: #06040e;
+    }
+
+    .portfolio-sticky {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    .portfolio-video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      will-change: transform;
+      transform: translateZ(0);
+    }
+
+    .portfolio-sticky::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(to bottom, rgba(6,4,14,0.75) 0%, transparent 30%),
+        linear-gradient(to top,    rgba(6,4,14,0.75) 0%, transparent 35%);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .portfolio-label {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      z-index: 2;
+      pointer-events: none;
+      width: 100%;
+      transition: opacity 0.7s ease;
+    }
+
+    .portfolio-label-eyebrow {
+      font-family: 'Raleway', sans-serif;
+      font-size: 0.6rem;
+      font-weight: 300;
+      letter-spacing: 0.5em;
+      text-transform: uppercase;
+      color: var(--purple-light);
+      margin-bottom: 22px;
+    }
+
+    .portfolio-label-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(5rem, 13vw, 11rem);
+      font-weight: 300;
+      color: var(--white);
+      line-height: 0.88;
+      letter-spacing: -0.02em;
+      margin-bottom: 28px;
+    }
+
+    .portfolio-label-scroll {
+      font-family: 'Raleway', sans-serif;
+      font-size: 0.57rem;
+      font-weight: 300;
+      letter-spacing: 0.5em;
+      text-transform: uppercase;
+      color: rgba(240,236,253,0.28);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+    }
+
+    .portfolio-label-scroll::before,
+    .portfolio-label-scroll::after {
+      content: '';
+      display: inline-block;
+      width: 28px;
+      height: 1px;
+      background: rgba(196,168,245,0.3);
+    }
+
+    /* car label overlay (bottom-left, fades in/out per car) */
+    .portfolio-car-label {
+      position: absolute;
+      bottom: 72px;
+      left: 64px;
+      z-index: 2;
+      pointer-events: none;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+
+    .portfolio-car-label.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .portfolio-car-line {
+      width: 32px;
+      height: 1px;
+      background: var(--purple);
+      margin-bottom: 12px;
+      transition: width 0.6s ease;
+    }
+
+    .portfolio-car-label.visible .portfolio-car-line { width: 52px; }
+
+    .portfolio-car-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(1.6rem, 2.5vw, 2.4rem);
+      font-weight: 300;
+      color: var(--white);
+      letter-spacing: -0.01em;
+      line-height: 1.1;
+      margin-bottom: 6px;
+    }
+
+    .portfolio-car-wrap {
+      font-family: 'Raleway', sans-serif;
+      font-size: 0.6rem;
+      font-weight: 300;
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      color: var(--purple-light);
+    }
+
+    /* ══════════════════════════════════════
        SERVICES
     ══════════════════════════════════════ */
     .section-services {
@@ -1158,6 +1295,36 @@
   <div id="site-content">
 
   <!-- ══════════════════════════════════════
+       PORTFOLIO SCROLL VIDEO
+  ══════════════════════════════════════ -->
+  <section class="section-portfolio" id="portfolio">
+    <div class="portfolio-sticky" id="portfolioSticky">
+      <video
+        id="portfolioVideo"
+        class="portfolio-video"
+        src="portfolio.mp4"
+        muted
+        playsinline
+        preload="auto"
+      ></video>
+
+      <!-- Intro label — fades out on scroll -->
+      <div class="portfolio-label" id="portfolioLabel">
+        <p class="portfolio-label-eyebrow">Prudent Motions</p>
+        <h2 class="portfolio-label-title">Our Work</h2>
+        <p class="portfolio-label-scroll">Scroll to explore</p>
+      </div>
+
+      <!-- Per-car label (bottom-left) -->
+      <div class="portfolio-car-label" id="portfolioCarLabel">
+        <div class="portfolio-car-line"></div>
+        <div class="portfolio-car-name" id="portfolioCarName">Chevrolet Camaro ZL1</div>
+        <div class="portfolio-car-wrap" id="portfolioCarWrap">Gloss White</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════
        SERVICES
   ══════════════════════════════════════ -->
   <section class="section-services" id="services" style="overflow:hidden">
@@ -1419,23 +1586,45 @@
     const stageBounds    = [[0,0.22],[0.22,0.42],[0.42,0.62],[0.62,0.82],[0.82,1]];
     const counterLabels  = ['01 / 05','02 / 05','03 / 05','04 / 05','05 / 05'];
 
+    // ── Portfolio refs ──
+    const portfolioVideo    = document.getElementById('portfolioVideo');
+    const portfolioSection  = document.getElementById('portfolio');
+    const portfolioLabel    = document.getElementById('portfolioLabel');
+    const portfolioCarLabel = document.getElementById('portfolioCarLabel');
+    const portfolioCarName  = document.getElementById('portfolioCarName');
+    const portfolioCarWrap  = document.getElementById('portfolioCarWrap');
+
+    // Cars in video order (adjust time thresholds once you know the video duration)
+    const portfolioCars = [
+      { name: 'Chevrolet Camaro ZL1', wrap: 'Gloss White'         },
+      { name: 'BMW M4',               wrap: 'Gloss Ocean Blue'     },
+      { name: 'Mercedes G-Wagon',     wrap: 'Matte Obsidian Black' },
+      { name: 'Ford F-150',           wrap: 'Gloss Candy Red'      },
+      { name: 'Porsche 911 Turbo',    wrap: 'Deep Violet Purple'   },
+    ];
+
     // ── State ──
     let navVisible      = false;
     let heroSeeking     = false;
     let wrapSeeking     = false;
+    let portfolioSeeking = false;
     let lastHeroP       = -1;
     let lastWrapVideoP  = -1;
+    let lastPortfolioP  = -1;
+    let lastCarIdx      = -1;
+    let portfolioTopCache = null;
     let rafId           = null;
     let siteFixed       = false; // site-content in fixed mode during slide-in
     let siteUnlocked    = false; // once true, never re-enter fixed mode
 
-    // Keep both videos paused — we scrub manually
-    [heroVideo, wrapVideo].forEach(v => {
+    // Keep all videos paused — we scrub manually
+    [heroVideo, wrapVideo, portfolioVideo].forEach(v => {
       v.pause();
       v.addEventListener('play', () => v.pause());
     });
-    heroVideo.addEventListener('seeked', () => { heroSeeking = false; });
-    wrapVideo.addEventListener('seeked', () => { wrapSeeking = false; });
+    heroVideo.addEventListener('seeked',     () => { heroSeeking     = false; });
+    wrapVideo.addEventListener('seeked',     () => { wrapSeeking     = false; });
+    portfolioVideo.addEventListener('seeked',() => { portfolioSeeking = false; });
 
     // ── Helpers ──
     const clamp = (v, lo=0, hi=1) => Math.min(Math.max(v, lo), hi);
@@ -1583,6 +1772,47 @@
 
       wrapSticky.style.transform = `translateY(${wrapTY}vh)`;
 
+      // ── Portfolio scrub (only after site-content is in normal flow) ──
+      if (siteUnlocked) {
+        // Cache absolute top once layout is stable
+        if (portfolioTopCache === null) {
+          portfolioTopCache = portfolioSection.getBoundingClientRect().top + scrollY;
+        }
+
+        const portfolioZone    = portfolioSection.offsetHeight - vh;
+        const portfolioScrolled = scrollY - portfolioTopCache;
+        const portfolioP       = clamp(portfolioScrolled / portfolioZone);
+
+        // Fade the "Our Work" intro label — visible at rest, gone by 8% scroll
+        portfolioLabel.style.opacity = String(clamp(1 - portfolioP * 14));
+
+        // Scrub video
+        if (!portfolioSeeking && Math.abs(portfolioP - lastPortfolioP) > 0.002) {
+          if (portfolioVideo.readyState >= 2 && portfolioVideo.duration) {
+            portfolioSeeking = true;
+            portfolioVideo.currentTime = portfolioP * portfolioVideo.duration;
+            lastPortfolioP = portfolioP;
+          }
+        }
+
+        // Car label — show after intro fades (portfolioP > 0.06), cycle through cars
+        if (portfolioP > 0.05) {
+          const carIdx = Math.min(
+            Math.floor(portfolioP * portfolioCars.length),
+            portfolioCars.length - 1
+          );
+          if (carIdx !== lastCarIdx) {
+            lastCarIdx = carIdx;
+            portfolioCarName.textContent = portfolioCars[carIdx].name;
+            portfolioCarWrap.textContent = portfolioCars[carIdx].wrap;
+          }
+          portfolioCarLabel.classList.add('visible');
+        } else {
+          portfolioCarLabel.classList.remove('visible');
+          lastCarIdx = -1;
+        }
+      }
+
       rafId = null;
     }
 
@@ -1593,8 +1823,9 @@
     window.addEventListener('scroll', onScroll, { passive: true });
 
     // Init on first video ready (run tick even before scroll)
-    heroVideo.addEventListener('loadeddata', () => { heroVideo.pause(); tick(); });
-    wrapVideo.addEventListener('loadeddata',  () => { wrapVideo.pause(); });
+    heroVideo.addEventListener('loadeddata',     () => { heroVideo.pause();     tick(); });
+    wrapVideo.addEventListener('loadeddata',     () => { wrapVideo.pause();     });
+    portfolioVideo.addEventListener('loadeddata',() => { portfolioVideo.pause(); });
     tick();
 
     /* ── Scroll reveal ── */
